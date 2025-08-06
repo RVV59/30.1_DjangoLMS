@@ -3,7 +3,6 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 
-# --- ШАГ 1: Создаем кастомный менеджер ---
 class UserManager(BaseUserManager):
     """
     Кастомный менеджер для модели User, где email является уникальным идентификатором
@@ -36,19 +35,16 @@ class UserManager(BaseUserManager):
         return self.create_user(email, password, **extra_fields)
 
 
-# --- ШАГ 2: Обновляем вашу модель User ---
 class User(AbstractUser):
-    username = None  # Убираем поле username
+    username = None
     email = models.EmailField(unique=True, verbose_name='Email')
     phone = models.CharField(max_length=15, blank=True, null=True, verbose_name='Телефон')
     city = models.CharField(max_length=100, blank=True, null=True, verbose_name='Город')
     avatar = models.ImageField(upload_to='avatars/', blank=True, null=True, verbose_name='Аватар')
 
-    # Указываем, что для входа будет использоваться поле email
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
 
-    # Подключаем наш кастомный менеджер
     objects = UserManager()
 
     def __str__(self):

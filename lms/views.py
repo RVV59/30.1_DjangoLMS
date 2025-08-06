@@ -2,12 +2,10 @@ from rest_framework import viewsets, generics
 from .models import Course, Lesson
 from .serializers import CourseSerializer, LessonSerializer
 
-# ViewSet для модели Course (обеспечивает полный CRUD)
 class CourseViewSet(viewsets.ModelViewSet):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
 
-# Generic-классы для модели Lesson
 class LessonCreateAPIView(generics.CreateAPIView):
     """Контроллер для создания урока."""
     serializer_class = LessonSerializer
