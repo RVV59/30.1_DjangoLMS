@@ -4,6 +4,7 @@ from .apps import LmsConfig
 from .views import (CourseViewSet, LessonCreateAPIView, LessonListAPIView,
                     LessonRetrieveAPIView, LessonUpdateAPIView, LessonDestroyAPIView)
 
+
 app_name = LmsConfig.name
 
 router = DefaultRouter()
