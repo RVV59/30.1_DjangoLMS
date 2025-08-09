@@ -11,17 +11,13 @@ class Command(BaseCommand):
     help = 'Creates several test payments in the database'
 
     def handle(self, *args, **options):
-        # Сначала очистим старые платежи, чтобы не создавать дубликаты при каждом запуске
         Payment.objects.all().delete()
         self.stdout.write(self.style.WARNING('Старые платежи удалены.'))
 
-        # Найдем существующие объекты, за которые будем "платить"
         try:
-            # Возьмем первого пользователя, первый курс и первый урок
-            # В реальном проекте здесь может быть более сложная логика
             user = User.objects.first()
             course = Course.objects.first()
-            lesson = Lesson.objects.last() # Возьмем последний урок для разнообразия
+            lesson = Lesson.objects.last()
 
             if not user or not course or not lesson:
                 self.stdout.write(self.style.ERROR('Недостаточно данных для создания платежей. Создайте хотя бы одного пользователя, курс и урок.'))
@@ -53,7 +49,6 @@ class Command(BaseCommand):
             }
         ]
 
-        # Создаем объекты в базе данных
         for payment_data in payments_to_create:
             Payment.objects.create(**payment_data)
 
