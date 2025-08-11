@@ -5,7 +5,7 @@ from .models import Course, Lesson
 class LessonSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lesson
-        fields = '__all__'
+        fields = ('id', 'title', 'description')
 
 
 class CourseSerializer(serializers.ModelSerializer):
