@@ -16,9 +16,7 @@ class LessonSerializer(serializers.ModelSerializer):
 class CourseSerializer(serializers.ModelSerializer):
     lessons_count = serializers.SerializerMethodField()
 
-    # 2. А вот его "интеграция в курс"
-    # Мы используем созданный выше LessonSerializer для вывода списка уроков
-    lessons = LessonSerializer(many=True, read_only=True, source='lesson_set')
+    lessons = LessonInCourseSerializer(many=True, read_only=True, source='lesson_set')
 
     class Meta:
         model = Course
