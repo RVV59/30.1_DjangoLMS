@@ -2,11 +2,16 @@ from rest_framework import serializers
 from .models import Course, Lesson
 
 # 1. Вот тот самый "отдельный сериализатор урока"
-class LessonSerializer(serializers.ModelSerializer):
+class LessonInCourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lesson
         fields = ('id', 'title', 'description')
 
+
+class LessonSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Lesson
+        fields = '__all__'
 
 class CourseSerializer(serializers.ModelSerializer):
     lessons_count = serializers.SerializerMethodField()
