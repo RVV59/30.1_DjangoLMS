@@ -1,29 +1,31 @@
-from rest_framework import generics
+from rest_framework import viewsets, generics
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Payment, User
 from .serializers import PaymentSerializer, UserSerializer
 from .filters import PaymentFilter
 
 class PaymentListAPIView(generics.ListAPIView):
-    """
-    Эндпоинт для вывода списка платежей с возможностью
-    фильтрации и сортировки.
-    """
     queryset = Payment.objects.all()
     serializer_class = PaymentSerializer
     filter_backends = [DjangoFilterBackend]
-    # Указываем наш кастомный класс фильтрации
     filterset_class = PaymentFilter
+    # Платежи могут смотреть только авторизованные пользователи
+    permission_classes = [IsAuthenticated]
 
-# Задел на будущее
-class UserCreateAPIView(generics.CreateAPIView):
-    """Эндпоинт для регистрации пользователя."""
-    serializer_class = UserSerializer
 
-class UserProfileAPIView(generics.RetrieveUpdateDestroyAPIView):
-    """Эндпоинт для управления профилем пользователя."""
-    serializer_class = UserSerializer
+class UserViewSet(viewsets.ModelViewSet):
+    """ViewSet для модели User."""
     queryset = User.objects.all()
+    serializer_class = UserSerializer
 
-    def get_object(self):
-        return self.request.user
+    def get_permissions(self):
+        """
+        Регистрация (create) доступна всем.
+        Остальные действия - только авторизованным.
+        """
+        if self.action == 'create':
+            self.permission_classes = [AllowAny]
+        else:
+            self.permission_classes = [IsAuthenticated]
+        return super().get_permissions()

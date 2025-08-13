@@ -1,7 +1,16 @@
 from rest_framework import serializers
 from .models import Course, Lesson
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-# 1. Вот тот самый "отдельный сериализатор урока"
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+
+        token['email'] = user.email
+
+        return token
+
 class LessonInCourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lesson
@@ -14,14 +23,10 @@ class LessonSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class CourseSerializer(serializers.ModelSerializer):
-    lessons_count = serializers.SerializerMethodField()
+    lessons_count = serializers.IntegerField(source='lessons.count', read_only=True)
 
-    lessons = LessonInCourseSerializer(many=True, read_only=True, source='lesson_set')
+    lessons = LessonInCourseSerializer(many=True, read_only=True)
 
     class Meta:
         model = Course
         fields = ('id', 'title', 'description', 'lessons_count', 'lessons')
-
-    def get_lessons_count(self, course_instance):
-        """Метод для получения количества уроков для конкретного курса."""
-        return course_instance.lesson_set.count()
