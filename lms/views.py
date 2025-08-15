@@ -1,17 +1,25 @@
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework_simplejwt.views import TokenObtainPairView
-
 from .models import Course, Lesson
 from .permissions import IsModerator, IsOwner
-from .serializers import (CourseSerializer, LessonSerializer,
-                          MyTokenObtainPairSerializer)
+from .serializers import (CourseSerializer, LessonSerializer)
 
 class OwnerAndModeratorPermissionsMixin:
     """
     Миксин для управления правами доступа и автоматического
     назначения владельца при создании объекта.
     """
+    def get_queryset(self):
+        """
+        Фильтрует queryset:
+        - для модераторов показывает все объекты.
+        - для остальных пользователей - только их собственные.
+        """
+        queryset = super().get_queryset()
+        if not self.request.user.groups.filter(name='moderators').exists():
+            queryset = queryset.filter(owner=self.request.user)
+        return queryset
+
     def get_permissions(self):
         """Определяем права доступа в зависимости от действия."""
         if self.action in ['list', 'retrieve', 'update', 'partial_update']:
@@ -27,11 +35,6 @@ class OwnerAndModeratorPermissionsMixin:
     def perform_create(self, serializer):
         """Привязываем создаваемый объект к текущему пользователю."""
         serializer.save(owner=self.request.user)
-
-
-class MyTokenObtainPairView(TokenObtainPairView):
-    serializer_class = MyTokenObtainPairSerializer
-    permission_classes = [AllowAny]
 
 
 class CourseViewSet(OwnerAndModeratorPermissionsMixin, viewsets.ModelViewSet):

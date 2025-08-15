@@ -1,10 +1,25 @@
 from rest_framework import serializers
 from .models import Payment, User
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        token['email'] = user.email
+        return token
+
 
 class PaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
         fields = '__all__'
+
+class UserPublicSerializer(serializers.ModelSerializer):
+    """Сериализатор для публичного просмотра профиля пользователя."""
+    class Meta:
+        model = User
+        fields = ('id', 'email', 'city', 'avatar')
 
 
 class UserSerializer(serializers.ModelSerializer):
