@@ -14,6 +14,6 @@ router.register(r'lessons', LessonViewSet, basename='lessons')
 
 # urlpatterns =  router.urls
 urlpatterns = [
-    router.urls,
     path('subscribe/', SubscriptionAPIView.as_view(), name='subscribe'),
-]+ router.urls
+]
+urlpatterns += router.urls

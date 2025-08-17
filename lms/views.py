@@ -48,11 +48,13 @@ class OwnerAndModeratorPermissionsMixin:
 class CourseViewSet(OwnerAndModeratorPermissionsMixin, viewsets.ModelViewSet):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
+    pagination_class = LmsPaginator
 
 
 class LessonViewSet(OwnerAndModeratorPermissionsMixin, viewsets.ModelViewSet):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
+    pagination_class = LmsPaginator
 
 
 class SubscriptionAPIView(generics.GenericAPIView):
