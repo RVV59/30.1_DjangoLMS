@@ -1,8 +1,3 @@
-# from rest_framework import viewsets
-# from rest_framework.permissions import IsAuthenticated, AllowAny
-# from .models import Course, Lesson, Subscription
-# from .permissions import IsModerator, IsOwner
-# from .serializers import (CourseSerializer, LessonSerializer)
 from rest_framework import viewsets, generics, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response

@@ -12,7 +12,6 @@ router = DefaultRouter()
 router.register(r'courses', CourseViewSet, basename='courses')
 router.register(r'lessons', LessonViewSet, basename='lessons')
 
-# urlpatterns =  router.urls
 urlpatterns = [
     path('subscribe/', SubscriptionAPIView.as_view(), name='subscribe'),
 ]
