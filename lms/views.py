@@ -1,8 +1,12 @@
-from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from .models import Course, Lesson
+from rest_framework.views import APIView
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
+from .models import Course, Lesson, Subscription
+from .paginators import LmsPaginator
 from .permissions import IsModerator, IsOwner
-from .serializers import (CourseSerializer, LessonSerializer)
+from .serializers import CourseSerializer, LessonSerializer
 
 class OwnerAndModeratorPermissionsMixin:
     """
@@ -40,9 +44,41 @@ class OwnerAndModeratorPermissionsMixin:
 class CourseViewSet(OwnerAndModeratorPermissionsMixin, viewsets.ModelViewSet):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
+    pagination_class = LmsPaginator
 
 
 class LessonViewSet(OwnerAndModeratorPermissionsMixin, viewsets.ModelViewSet):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
+    pagination_class = LmsPaginator
+
+
+class SubscriptionAPIView(APIView):
+    """
+    API для создания/удаления подписки на курс (переключатель).
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        user = request.user
+        course_id = request.data.get('course_id')
+
+        if not course_id:
+            return Response({'error': 'Необходимо указать course_id'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            course = Course.objects.get(pk=course_id)
+        except Course.DoesNotExist:
+            return Response({'error': 'Курс не найден'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Ищем подписку
+        subscription, created = Subscription.objects.get_or_create(user=user, course=course)
+
+        if not created:
+            subscription.delete()
+            message = 'Вы успешно отписались от курса.'
+        else:
+            message = 'Вы успешно подписались на курс.'
+
+        return Response({'message': message}, status=status.HTTP_200_OK)
 
