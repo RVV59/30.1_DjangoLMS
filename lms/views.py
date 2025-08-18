@@ -1,4 +1,5 @@
-from rest_framework import viewsets, generics, status
+from rest_framework.views import APIView
+from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
@@ -52,7 +53,7 @@ class LessonViewSet(OwnerAndModeratorPermissionsMixin, viewsets.ModelViewSet):
     pagination_class = LmsPaginator
 
 
-class SubscriptionAPIView(generics.GenericAPIView):
+class SubscriptionAPIView(APIView):
     """
     API для создания/удаления подписки на курс (переключатель).
     """
