@@ -56,6 +56,9 @@ class LessonViewSet(OwnerAndModeratorPermissionsMixin, viewsets.ModelViewSet):
 class SubscriptionAPIView(APIView):
     """
     API для создания/удаления подписки на курс (переключатель).
+        Принимает POST-запрос с `course_id`.
+    - Если пользователь не подписан на курс - создает подписку.
+    - Если пользователь уже подписан - удаляет подписку.
     """
     permission_classes = [IsAuthenticated]
 
