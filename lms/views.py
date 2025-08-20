@@ -1,12 +1,13 @@
 from rest_framework.views import APIView
-from rest_framework import status, viewsets
+from rest_framework import status, viewsets, generics, serializers
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-
 from .models import Course, Lesson, Subscription
 from .paginators import LmsPaginator
 from .permissions import IsModerator, IsOwner
-from .serializers import CourseSerializer, LessonSerializer
+from .serializers import CourseSerializer, LessonSerializer, PaymentSerializer
+from .services import create_stripe_product, create_stripe_price, create_stripe_session
+
 
 class OwnerAndModeratorPermissionsMixin:
     """
@@ -20,7 +21,7 @@ class OwnerAndModeratorPermissionsMixin:
         - для остальных пользователей - только их собственные.
         """
         queryset = super().get_queryset()
-        if not self.request.user.groups.filter(name='moderators').exists():
+        if not self.request.user.is_superuser and not self.request.user.groups.filter(name='moderators').exists():
             queryset = queryset.filter(owner=self.request.user)
         return queryset
 
@@ -85,3 +86,32 @@ class SubscriptionAPIView(APIView):
 
         return Response({'message': message}, status=status.HTTP_200_OK)
 
+class PaymentCreateAPIView(generics.CreateAPIView):
+    """
+    Создание платежа через Stripe.
+    Принимает `course_id` для создания сессии оплаты.
+    """
+    serializer_class = PaymentSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        course_id = self.request.data.get('course_id')
+        try:
+            course = Course.objects.get(pk=course_id)
+        except Course.DoesNotExist:
+            raise serializers.ValidationError("Курс не найден.")
+
+        amount = 1000.00
+
+        stripe_product = create_stripe_product(course)
+        stripe_price = create_stripe_price(stripe_product, amount)
+        stripe_session = create_stripe_session(stripe_price)
+
+        serializer.save(
+            user=self.request.user,
+            course=course,
+            amount=amount,
+            payment_method='card',
+            stripe_session_id=stripe_session.id,
+            stripe_payment_link=stripe_session.url
+        )
