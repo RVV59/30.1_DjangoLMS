@@ -14,6 +14,6 @@ router.register(r'lessons', LessonViewSet, basename='lessons')
 
 urlpatterns = [
     path('subscribe/', SubscriptionAPIView.as_view(), name='subscribe'),
-    path('payment/create/', PaymentCreateAPIView.as_view(), name='payment-create'),
+    path('payments/create/', PaymentCreateAPIView.as_view(), name='payment-create'),
 ]
 urlpatterns += router.urls

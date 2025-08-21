@@ -54,6 +54,7 @@ class Payment(models.Model):
     lesson = models.ForeignKey(Lesson, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Оплаченный урок')
     amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Сумма оплаты')
     payment_method = models.CharField(max_length=20, choices=[('cash', 'Наличные'), ('card', 'Перевод')], verbose_name='Способ оплаты')
+    price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, verbose_name='Цена курса')
 
     stripe_session_id = models.CharField(max_length=255, blank=True, null=True, verbose_name='ID сессии Stripe')
     stripe_payment_link = models.URLField(max_length=500, blank=True, null=True, verbose_name='Ссылка на оплату Stripe')

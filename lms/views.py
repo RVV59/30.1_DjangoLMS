@@ -7,6 +7,8 @@ from .paginators import LmsPaginator
 from .permissions import IsModerator, IsOwner
 from .serializers import CourseSerializer, LessonSerializer, PaymentSerializer
 from .services import create_stripe_product, create_stripe_price, create_stripe_session
+from decimal import Decimal, InvalidOperation
+from rest_framework import serializers
 
 
 class OwnerAndModeratorPermissionsMixin:
@@ -89,19 +91,29 @@ class SubscriptionAPIView(APIView):
 class PaymentCreateAPIView(generics.CreateAPIView):
     """
     Создание платежа через Stripe.
-    Принимает `course_id` для создания сессии оплаты.
+    Принимает `course` (ID курса) и `amount` (сумму) для создания сессии оплаты.
     """
     serializer_class = PaymentSerializer
     permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
-        course_id = self.request.data.get('course_id')
+        course_id = self.request.data.get('course')
+        if not course_id:
+            raise serializers.ValidationError({"course": "Это поле обязательно."})
+
+        amount_str = self.request.data.get('amount')
+        if not amount_str:
+            raise serializers.ValidationError({"amount": "Это поле обязательно."})
+
+        try:
+            amount = Decimal(amount_str)
+        except InvalidOperation:
+            raise serializers.ValidationError({"amount": "Неверный формат суммы."})
+
         try:
             course = Course.objects.get(pk=course_id)
         except Course.DoesNotExist:
-            raise serializers.ValidationError("Курс не найден.")
-
-        amount = 1000.00
+            raise serializers.ValidationError({"course": "Курс с таким ID не найден."})
 
         stripe_product = create_stripe_product(course)
         stripe_price = create_stripe_price(stripe_product, amount)

@@ -37,3 +37,4 @@ class PaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
         fields = '__all__'
+        read_only_fields = ('user', 'payment_date', 'payment_method', 'stripe_session_id', 'stripe_payment_link')
