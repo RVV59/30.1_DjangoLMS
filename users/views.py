@@ -14,14 +14,6 @@ from .serializers import (
     UserPublicSerializer
 )
 
-#
-# class PaymentListAPIView(generics.ListAPIView):
-#     """Контроллер для просмотра списка платежей с фильтрацией."""
-#     queryset = Payment.objects.all()
-#     serializer_class = PaymentSerializer
-#     filter_backends = [DjangoFilterBackend]
-#     filterset_class = PaymentFilter
-#     permission_classes = [IsAuthenticated]
 
 
 class MyTokenObtainPairView(TokenObtainPairView):

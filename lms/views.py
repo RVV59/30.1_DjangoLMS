@@ -9,6 +9,10 @@ from .serializers import CourseSerializer, LessonSerializer, PaymentSerializer
 from .services import create_stripe_product, create_stripe_price, create_stripe_session
 from decimal import Decimal, InvalidOperation
 from rest_framework import serializers
+from datetime import timedelta
+from django.utils import timezone
+from .tasks import send_course_update_email
+
 
 
 class OwnerAndModeratorPermissionsMixin:
@@ -54,6 +58,20 @@ class LessonViewSet(OwnerAndModeratorPermissionsMixin, viewsets.ModelViewSet):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
     pagination_class = LmsPaginator
+
+    def perform_update(self, serializer):
+        course = serializer.save()
+
+        # Проверяем, прошло ли более 4 часов с последнего обновления
+        if course.updated_at < timezone.now() - timedelta(hours=4):
+            # Получаем всех подписчиков этого курса
+            subscribers = course.subscriptions.all()
+            for subscription in subscribers:
+                # Вызываем нашу асинхронную задачу
+                send_course_update_email.delay(subscription.user.email, course.title)
+
+        # Обновляем поле updated_at после проверки, чтобы зафиксировать текущее обновление
+        course.save()
 
 
 class SubscriptionAPIView(APIView):

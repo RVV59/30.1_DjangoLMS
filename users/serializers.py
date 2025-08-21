@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from .models import User
-# Payment,
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -10,11 +9,6 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['email'] = user.email
         return token
 
-#
-# class PaymentSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Payment
-#         fields = '__all__'
 
 class UserPublicSerializer(serializers.ModelSerializer):
     """Сериализатор для публичного просмотра профиля пользователя."""
