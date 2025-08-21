@@ -3,24 +3,25 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django_filters.rest_framework import DjangoFilterBackend
 
-from .models import Payment, User
-from .filters import PaymentFilter
+from .models import  User
+# , Payment)
+# from .filters import PaymentFilter
 from .permissions import IsOwnerOrStaff
 from .serializers import (
     MyTokenObtainPairSerializer,
-    PaymentSerializer,
+    # PaymentSerializer,
     UserSerializer,
     UserPublicSerializer
 )
 
-
-class PaymentListAPIView(generics.ListAPIView):
-    """Контроллер для просмотра списка платежей с фильтрацией."""
-    queryset = Payment.objects.all()
-    serializer_class = PaymentSerializer
-    filter_backends = [DjangoFilterBackend]
-    filterset_class = PaymentFilter
-    permission_classes = [IsAuthenticated]
+#
+# class PaymentListAPIView(generics.ListAPIView):
+#     """Контроллер для просмотра списка платежей с фильтрацией."""
+#     queryset = Payment.objects.all()
+#     serializer_class = PaymentSerializer
+#     filter_backends = [DjangoFilterBackend]
+#     filterset_class = PaymentFilter
+#     permission_classes = [IsAuthenticated]
 
 
 class MyTokenObtainPairView(TokenObtainPairView):
