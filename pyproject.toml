@@ -4,7 +4,11 @@
     description = ""
     authors = ["RVV59 <reshetov664@gmail.com>"]
     readme = "README.md"
-    packages = [{include = "config"}]
+    packages = [
+        { include = "config" },
+        { include = "lms" },
+        { include = "users" },
+    ]
 
     [tool.poetry.dependencies]
     python = "^3.12"
@@ -22,6 +26,7 @@
     celery = ">=5.5.3,<6.0.0"
     redis = ">=6.4.0,<7.0.0"
     django-celery-beat = "^2.8.1"
+    psycopg = "^3.2.9"
 
     [build-system]
     requires = ["poetry-core>=2.0.0,<3.0.0"]
