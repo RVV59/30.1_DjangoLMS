@@ -1,32 +1,29 @@
-[project]
-name = "30-1-djangolms"
-version = "0.1.0"
-description = ""
-authors = [
-    {name = "RVV59",email = "reshetov664@gmail.com"}
-]
-readme = "README.md"
-requires-python = ">=3.13"
-dependencies = [
-    "django (>=5.2.4,<6.0.0)",
-    "djangorestframework (>=3.16.0,<4.0.0)",
-    "pillow (>=11.3.0,<12.0.0)",
-    "python-dotenv (>=1.1.1,<2.0.0)",
-    "django-filter (>=25.1,<26.0)",
-    "djangorestframework-simplejwt (>=5.5.1,<6.0.0)",
-    "coverage (>=7.10.4,<8.0.0)",
-    "drf-yasg (>=1.21.10,<2.0.0)",
-    "stripe (>=12.4.0,<13.0.0)",
-    "django-extensions (>=4.1,<5.0)",
-    "pydotplus (>=2.0.2,<3.0.0)",
-    "celery (>=5.5.3,<6.0.0)",
-    "redis (>=6.4.0,<7.0.0)"
-]
+    [tool.poetry]
+    name = "30-1-djangolms"
+    version = "0.1.0"
+    description = ""
+    authors = ["RVV59 <reshetov664@gmail.com>"]
+    readme = "README.md"
+    packages = [{include = "config"}]
 
-[tool.poetry]
-packages = [{include = "30"}]
+    [tool.poetry.dependencies]
+    python = "^3.12"
+    django = ">=5.2.4,<6.0.0"
+    djangorestframework = ">=3.16.0,<4.0.0"
+    pillow = ">=11.3.0,<12.0.0"
+    python-dotenv = ">=1.1.1,<2.0.0"
+    django-filter = ">=25.1,<26.0"
+    djangorestframework-simplejwt = ">=5.5.1,<6.0.0"
+    coverage = ">=7.10.4,<8.0.0"
+    drf-yasg = ">=1.21.10,<2.0.0"
+    stripe = ">=12.4.0,<13.0.0"
+    django-extensions = ">=4.1,<5.0"
+    pydotplus = ">=2.0.2,<3.0.0"
+    celery = ">=5.5.3,<6.0.0"
+    redis = ">=6.4.0,<7.0.0"
+    django-celery-beat = "^2.8.1"
 
-
-[build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
-build-backend = "poetry.core.masonry.api"
+    [build-system]
+    requires = ["poetry-core>=2.0.0,<3.0.0"]
+    build-backend = "poetry.core.masonry.api"
+    
