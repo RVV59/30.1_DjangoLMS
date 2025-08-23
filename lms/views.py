@@ -53,6 +53,19 @@ class CourseViewSet(OwnerAndModeratorPermissionsMixin, viewsets.ModelViewSet):
     serializer_class = CourseSerializer
     pagination_class = LmsPaginator
 
+    def perform_update(self, serializer):
+        # Сохраняем обновленный курс
+        course = serializer.save()
+
+        # Проверяем, прошло ли более 4 часов с последнего обновления
+        # Эта проверка теперь будет работать, если вы добавили updated_at в модель
+        if course.updated_at < timezone.now() - timedelta(hours=4):
+            # Получаем всех подписчиков этого курса
+            subscribers = Subscription.objects.filter(course=course)
+            for subscription in subscribers:
+                # Вызываем нашу асинхронную задачу
+                send_course_update_email.delay(subscription.user.email, course.title)
+
 
 class LessonViewSet(OwnerAndModeratorPermissionsMixin, viewsets.ModelViewSet):
     queryset = Lesson.objects.all()
@@ -61,17 +74,6 @@ class LessonViewSet(OwnerAndModeratorPermissionsMixin, viewsets.ModelViewSet):
 
     def perform_update(self, serializer):
         course = serializer.save()
-
-        # Проверяем, прошло ли более 4 часов с последнего обновления
-        if course.updated_at < timezone.now() - timedelta(hours=4):
-            # Получаем всех подписчиков этого курса
-            subscribers = course.subscriptions.all()
-            for subscription in subscribers:
-                # Вызываем нашу асинхронную задачу
-                send_course_update_email.delay(subscription.user.email, course.title)
-
-        # Обновляем поле updated_at после проверки, чтобы зафиксировать текущее обновление
-        course.save()
 
 
 class SubscriptionAPIView(APIView):

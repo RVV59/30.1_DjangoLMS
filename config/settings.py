@@ -132,11 +132,12 @@ CELERY_RESULT_BACKEND = f'redis://{os.getenv("REDIS_HOST")}:{os.getenv("REDIS_PO
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TIMEZONE = TIME_ZONE # Важно, чтобы Celery использовал тот же часовой пояс, что и Django
+CELERY_TIMEZONE = TIME_ZONE
 
 CELERY_BEAT_SCHEDULE = {
     'deactivate-inactive-users-every-day': {
-        'task': 'users.tasks.deactivate_inactive_users',  # Путь к задаче
-        'schedule': crontab(hour=8, minute=0),  # Запускать каждый день в 8:00 утра
+        'task': 'users.tasks.deactivate_inactive_users',
+        'schedule': crontab(hour=8, minute=0),
     },
 }
+CELERY_TIMEZONE = 'Europe/Moscow'
