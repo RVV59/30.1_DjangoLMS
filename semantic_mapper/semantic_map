@@ -1,0 +1,21 @@
+// Semantic Map
+digraph {
+	rankdir=LR size=10
+	Model:Course -> "DB Table"
+	Model:Lesson -> "DB Table"
+	Model:Subscription -> "DB Table"
+	Model:Payment -> "DB Table"
+	Serializer:"serializers.py" -> Serializer:LessonInCourseSerializer
+	Other:"tests.py" -> View:post
+	View:"views.py" -> Service:create_stripe_session
+	View:"views.py" -> Service:create_stripe_product
+	View:"views.py" -> View:get_queryset
+	View:"views.py" -> Service:create_stripe_price
+	ViewFunc:get_queryset -> "HTTP Request"
+	ViewFunc:get_permissions -> "HTTP Request"
+	ViewFunc:perform_create -> "HTTP Request"
+	ViewFunc:perform_update -> "HTTP Request"
+	ViewFunc:perform_update -> "HTTP Request"
+	ViewFunc:post -> "HTTP Request"
+	ViewFunc:perform_create -> "HTTP Request"
+}
