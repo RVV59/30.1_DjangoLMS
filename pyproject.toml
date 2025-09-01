@@ -11,7 +11,7 @@
     ]
 
     [tool.poetry.dependencies]
-    python = "^3.12"
+    python = ">=3.12, <4.0"
     django = ">=5.2.4,<6.0.0"
     djangorestframework = ">=3.16.0,<4.0.0"
     pillow = ">=11.3.0,<12.0.0"
@@ -27,6 +27,8 @@
     redis = ">=6.4.0,<7.0.0"
     django-celery-beat = "^2.8.1"
     psycopg = "^3.2.9"
+    openai = "^1.101.0"
+    graphviz = "^0.21"
 
     [build-system]
     requires = ["poetry-core>=2.0.0,<3.0.0"]
