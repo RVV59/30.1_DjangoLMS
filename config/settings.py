@@ -15,7 +15,6 @@ from dotenv import load_dotenv
 from datetime import timedelta
 from celery.schedules import crontab
 
-
 load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,10 +23,10 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 
 DEBUG = os.getenv('DEBUG', 'False').lower() in ('true', '1', 't')
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
 
 
-
+# --- Приложения ---
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -35,14 +34,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     'rest_framework',
-    'users',
-    'lms',
     'django_filters',
     'rest_framework_simplejwt',
     'drf_yasg',
     'django_extensions',
-    'django_celery_beat'
+    'django_celery_beat',
+
+    'users',
+    'lms',
 ]
 
 MIDDLEWARE = [
@@ -86,38 +87,29 @@ DATABASES = {
 }
 
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-
 LANGUAGE_CODE = 'ru-ru'
-
 TIME_ZONE = 'Europe/Moscow'
 USE_I18N = True
-
 USE_TZ = True
 
 STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
 AUTH_USER_MODEL = 'users.User'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ]
 }
 
 SIMPLE_JWT = {
@@ -140,16 +132,12 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': crontab(hour=8, minute=0),
     },
 }
-CELERY_TIMEZONE = 'Europe/Moscow'
 
-# config/settings.py
-
-# --- Настройки почтового сервиса ---
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = os.getenv('EMAIL_HOST')
-EMAIL_PORT = int(os.getenv('EMAIL_PORT', 465)) # Можно поменять значение по умолчанию
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587)) # 587 для TLS, 465 для SSL
 EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL', 'False').lower() in ('true', '1', 't')
-EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'False').lower() in ('true', '1', 't')
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True').lower() in ('true', '1', 't')
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
