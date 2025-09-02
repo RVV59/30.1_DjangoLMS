@@ -10,11 +10,9 @@ RUN pip install poetry
 WORKDIR /app
 
 COPY pyproject.toml poetry.lock ./
-RUN poetry config virtualenvs.create false && poetry install --no-dev --no-root
+RUN poetry config virtualenvs.create false && poetry install --no-root
 
 COPY . .
 
 RUN adduser --disabled-password --gecos '' appuser
 USER appuser
-
-CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000"]
