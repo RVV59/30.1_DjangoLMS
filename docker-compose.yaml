@@ -1,0 +1,67 @@
+version: '3.9'
+
+services:
+  # Сервис базы данных PostgreSQL
+  db:
+    image: postgres:15
+    container_name: lms_db
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    ports:
+      - "5432:5432" # Пробрасываем порт для удобства подключения с хост-машины
+
+  # Сервис Redis для Celery
+  redis:
+    image: redis:7
+    container_name: lms_redis
+
+  # Сервис Django-приложения (веб-сервер)
+  app:
+    build: .
+    container_name: lms_app
+    command: >
+      sh -c "python manage.py migrate &&
+             gunicorn config.wsgi:application --bind 0.0.0.0:8000"
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - redis
+
+  # Сервис воркера Celery
+  celery_worker:
+    build: .
+    container_name: lms_celery_worker
+    command: celery -A config worker -l INFO
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - db
+
+  # Сервис планировщика Celery Beat
+  celery_beat:
+    build: .
+    container_name: lms_celery_beat
+    command: celery -A config beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - db
+
+# Именованный том для сохранения данных PostgreSQL между перезапусками
+volumes:
+  postgres_data:
