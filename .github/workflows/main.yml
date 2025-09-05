@@ -1,0 +1,93 @@
+# Название нашего сценария автоматизации
+name: Django LMS CI/CD
+
+# Триггеры:
+on:
+  # 1. Запускать при push в develop (для тестов и последующего развертывания)
+  push:
+    branches:
+      - develop
+  # 2. Запускать при создании/обновлении Pull Request в develop (только для тестов)
+  pull_request:
+    branches:
+      - develop
+
+# Задачи (jobs), которые будут выполняться
+jobs:
+  # --- ЗАДАЧА ДЛЯ ТЕСТИРОВАНИЯ ---
+  # Эта задача будет запускаться для обоих триггеров: push и pull_request
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      # Шаг 1: Клонирование кода из вашего репозитория
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Шаг 2: Установка Python нужной версии
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      # Шаг 3: Установка менеджера зависимостей Poetry
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+
+      # Шаг 4: Установка зависимостей проекта из poetry.lock
+      - name: Install dependencies
+        run: poetry install --no-root
+
+      # Шаг 5: Запуск тестов
+      # Создаем временный .env файл, достаточный для запуска тестов.
+      - name: Run Django tests
+        run: |
+          echo "SECRET_KEY=a-dummy-secret-key-for-testing" > .env
+          echo "DEBUG=True" >> .env
+          poetry run python manage.py test
+
+  # --- ЗАДАЧА ДЛЯ РАЗВЕРТЫВАНИЯ ---
+  deploy:
+    # Условие: запускать эту задачу ТОЛЬКО для событий push
+    if: github.event_name == 'push'
+
+    # Зависимость: эта задача начнется только если задача 'test' завершилась успешно.
+    # Если тесты провалятся, развертывание будет автоматически отменено.
+    needs: test
+
+    name: Deploy to Yandex Cloud
+    runs-on: ubuntu-latest
+
+    steps:
+      # Шаг 1: Клонирование кода
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Шаг 2: Установка приватного SSH-ключа из секретов GitHub
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          known_hosts: 'just-a-placeholder-so-we-dont-get-errors'
+
+      # Шаг 3: Добавление IP-адреса сервера в список известных хостов
+      - name: Adding Known Hosts
+        run: ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts
+
+      # Шаг 4: Развертывание на сервере
+      - name: Deploy on server
+        run: |
+          ssh ${{ secrets.USER }}@${{ secrets.HOST }} '
+            # Переходим в папку проекта
+            cd ~/30.1_DjangoLMS/
+
+            # Получаем последние изменения из ветки develop
+            git pull origin develop
+
+            # Создаем/обновляем файл .env из секрета GitHub
+            echo "${{ secrets.DOTENV_FILE }}" | base64 -d > .env
+
+            # Пересобираем и перезапускаем Docker-контейнеры в фоновом режиме
+            docker-compose up --build -d
+          '
