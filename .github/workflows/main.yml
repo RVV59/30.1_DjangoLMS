@@ -2,15 +2,7 @@
 name: Django LMS CI/CD
 
 # Триггеры:
-on:
-  # 1. Запускать при push в develop (для тестов и последующего развертывания)
-  push:
-    branches:
-      - develop
-  # 2. Запускать при создании/обновлении Pull Request в develop (только для тестов)
-  pull_request:
-    branches:
-      - develop
+on: [push]
 
 # Задачи (jobs), которые будут выполняться
 jobs:
