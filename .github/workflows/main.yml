@@ -48,7 +48,7 @@ jobs:
     # Если тесты провалятся, развертывание будет автоматически отменено.
     needs: test
 
-    name: Deploy to Yandex Cloud
+    name: Deploy to Yandex Cloud server
     runs-on: ubuntu-latest
 
     steps:
@@ -75,7 +75,7 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no -vT ${{secrets.USER}}@${{secrets.HOST}} << 'EOF'
             # Теперь здесь можно писать команды как в обычном скрипте
-            cd /path/to/your/project
+            cd ~/30.1_DjangoLMS/
             git pull
           
             # Создаем/обновляем файл .env из секрета GitHub
