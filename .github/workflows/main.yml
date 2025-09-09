@@ -70,17 +70,26 @@ jobs:
         uses: webfactory/ssh-agent@v0.8.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-      # Шаг 4: Развертывание на сервере
+            # Шаг 4: Развертывание на сервере
       - name: Deploy to server
         run: |
           ssh -o StrictHostKeyChecking=no -vT ${{secrets.USER}}@${{secrets.HOST}} << 'EOF'
-            # Теперь здесь можно писать команды как в обычном скрипте
+            # --- НОВЫЙ, БОЛЕЕ НАДЕЖНЫЙ СПОСОБ ---
+
+            # 1. Удаляем старую папку проекта, чтобы избежать конфликтов.
+            # Флаг -f нужен, чтобы команда не выдавала ошибку, если папки еще нет.
+            rm -rf ~/30.1_DjangoLMS/
+
+            # 2. Клонируем репозиторий заново из нужной ветки.
+            # Убедимся, что репозиторий на GitHub ПУБЛИЧНЫЙ.
+            git clone -b feature/hw_35 https://github.com/RVV59/30.1_DjangoLMS.git ~/30.1_DjangoLMS/
+            
+            # 3. Переходим в папку с проектом.
             cd ~/30.1_DjangoLMS/
-            git pull
           
-            # Создаем/обновляем файл .env из секрета GitHub
+            # 4. Создаем/обновляем файл .env из секрета GitHub
             echo "${{ secrets.DOTENV_FILE }}" | base64 -d > .env
 
-            # Пересобираем и перезапускаем Docker-контейнеры в фоновом режиме
+            # 5. Пересобираем и перезапускаем Docker-контейнеры в фоновом режиме
             docker-compose up --build -d
           EOF
