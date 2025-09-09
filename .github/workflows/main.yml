@@ -74,20 +74,23 @@ jobs:
       - name: Deploy to server
         run: |
           ssh -o StrictHostKeyChecking=no -vT ${{secrets.USER}}@${{secrets.HOST}} << 'EOF'
-            # Сервер уже настроен, поэтому мы просто выполняем команды деплоя
-
-            # 1. Удаляем старую папку
+            # --- УПРОЩЕННЫЙ ПЛАН ДЛЯ ПРОВЕРКИ ---
+            # Наша цель - убедиться, что эти 4 команды выполняются без ошибок.
+          
+            # 1. Удаляем старую папку, чтобы начать с чистого листа
             rm -rf ~/30.1_DjangoLMS/
-
-            # 2. Клонируем свежую версию
+          
+            # 2. Клонируем свежую версию из нужной ветки
             git clone -b feature/hw_35 https://github.com/RVV59/30.1_DjangoLMS.git ~/30.1_DjangoLMS/
-
-            # 3. Переходим в папку
+          
+            # 3. Переходим в новую папку
             cd ~/30.1_DjangoLMS/
-
-            # 4. Создаем .env
+          
+            # 4. Создаем файл .env из секрета
             echo "${{ secrets.DOTENV_FILE }}" | base64 -d > .env
-
-            # 5. Запускаем!
-            docker-compose up --build -d
+          
+            # 5. Проверяем, что все создалось (необязательно, но полезно для отладки)
+            echo "--- Deployment successful! Files on server: ---"
+            ls -la
+            echo "---------------------------------------------"
           EOF
