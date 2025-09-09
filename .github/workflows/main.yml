@@ -74,21 +74,20 @@ jobs:
       - name: Deploy to server
         run: |
           ssh -o StrictHostKeyChecking=no -vT ${{secrets.USER}}@${{secrets.HOST}} << 'EOF'
-            # --- ШАГ 0: УСТАНОВКА ИНСТРУМЕНТОВ ---
-            # Устанавливаем docker-compose, если его нет. Это решит ошибку "command not found".
-            # sudo нужен, т.к. установка идет в системную папку /usr/local/bin
-            if ! command -v docker-compose &> /dev/null
-            then
-                echo "docker-compose could not be found, installing it now..."
-                sudo apt-get update && sudo apt-get install -y curl
-                sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-                sudo chmod +x /usr/local/bin/docker-compose
-            fi
+            # Сервер уже настроен, поэтому мы просто выполняем команды деплоя
 
-            # --- ДАЛЬШЕ ВАШ СУЩЕСТВУЮЩИЙ КОД ---
+            # 1. Удаляем старую папку
             rm -rf ~/30.1_DjangoLMS/
+
+            # 2. Клонируем свежую версию
             git clone -b feature/hw_35 https://github.com/RVV59/30.1_DjangoLMS.git ~/30.1_DjangoLMS/
+
+            # 3. Переходим в папку
             cd ~/30.1_DjangoLMS/
+
+            # 4. Создаем .env
             echo "${{ secrets.DOTENV_FILE }}" | base64 -d > .env
+
+            # 5. Запускаем!
             docker-compose up --build -d
           EOF
