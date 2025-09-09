@@ -81,7 +81,6 @@ jobs:
             rm -rf ~/30.1_DjangoLMS/
 
             # 2. Клонируем репозиторий заново из нужной ветки.
-            # Убедимся, что репозиторий на GitHub ПУБЛИЧНЫЙ.
             git clone -b feature/hw_35 https://github.com/RVV59/30.1_DjangoLMS.git ~/30.1_DjangoLMS/
             
             # 3. Переходим в папку с проектом.
